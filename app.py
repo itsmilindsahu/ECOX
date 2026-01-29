@@ -9,12 +9,13 @@ from utils import (
 )
 from model import predict_disease, map_to_crop_disease
 
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="Crop Disease Detection",
+    page_title="ecox",
     layout="centered"
 )
 
-# ---------- HEADER ----------
+# ---------------- HEADER ----------------
 st.markdown(
     """
     <h1 style='text-align: center;'>🌱 ecox</h1>
@@ -25,16 +26,33 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-uploaded_file = st.file_uploader(
-    "📸 Upload crop leaf image",
-    type=["jpg", "png", "jpeg"]
+# ---------------- IMAGE INPUT ----------------
+st.markdown("### 📸 Capture or Upload Crop Leaf Image")
+
+input_method = st.radio(
+    "Choose image input method",
+    ["📷 Take Photo", "📁 Upload Image"],
+    horizontal=True
 )
 
-if uploaded_file:
-    image = Image.open(uploaded_file)
+image_file = None
+
+if input_method == "📷 Take Photo":
+    image_file = st.camera_input("Take a clear photo of the crop leaf")
+
+else:
+    image_file = st.file_uploader(
+        "Upload crop leaf image",
+        type=["jpg", "png", "jpeg"]
+    )
+
+# ---------------- PROCESS IMAGE ----------------
+if image_file:
+    image = Image.open(image_file)
     st.image(image, caption="Uploaded Leaf Image", use_container_width=True)
 
-    processed_img = preprocess_image(uploaded_file)
+    # Preprocess
+    processed_img = preprocess_image(image_file)
 
     # AI prediction
     raw_label, confidence = predict_disease(processed_img)
@@ -49,30 +67,38 @@ if uploaded_file:
     st.divider()
     st.markdown("## 📊 Analysis Results")
 
-    # ---------- AI PREDICTION CARD ----------
-    with st.container():
-        st.subheader("🧠 AI Prediction")
-        st.write(f"**Detected Disease:** {disease_label}")
-        st.write(f"**Model Confidence:** {confidence:.2f}")
+    # ---------------- AI PREDICTION ----------------
+    st.subheader("🧠 AI Prediction")
+    st.write(f"**Detected Disease:** {disease_label}")
+    st.write(f"**Model Confidence:** {confidence:.2f}")
 
-    # ---------- SEVERITY CARD ----------
-    with st.container():
-        st.subheader("🌡️ Disease Severity")
-        st.progress(min(max(int(infected_pct), 0), 100))
-        st.write(f"**Severity Level:** {severity}")
-        st.write(f"**Affected Area:** {infected_pct:.1f}%")
+    # ---------------- SEVERITY ----------------
+    st.subheader("🌡️ Disease Severity")
+    st.progress(min(max(int(infected_pct), 0), 100))
+    st.write(f"**Severity Level:** {severity}")
+    st.write(f"**Affected Area:** {infected_pct:.1f}%")
 
-    # ---------- URGENCY CARD ----------
-    with st.container():
-        st.subheader("🚦 Urgency Status")
-        st.info(urgency)
+    # ---------------- URGENCY ----------------
+    st.subheader("🚦 Urgency Status")
+    st.info(urgency)
 
-    # ---------- ACTION CARD ----------
-    with st.container():
-        st.subheader("🌿 Recommended Action")
-        st.write(f"**Organic Method:** {actions['Organic']}")
-        st.write(f"**Chemical Method:** {actions['Chemical']}")
-        st.write(f"**Advice:** {actions['Advice']}")
+    # ---------------- ACTION ----------------
+    st.subheader("🌿 Recommended Action")
+    st.write(f"**Organic Method:** {actions['Organic']}")
+    st.write(f"**Chemical Method:** {actions['Chemical']}")
+    st.write(f"**Advice:** {actions['Advice']}")
 
-    st.success("✅ Analysis complete. This system is optimized for real field conditions.")
+    st.success("✅ Analysis complete. Designed for real field conditions.")
 
+# ---------------- FOOTER ----------------
+st.markdown(
+    """
+    <hr>
+    <p style='text-align: center; font-size: 12px; color: gray;'>
+    ecox • AI4Life Hackathon • IISER Tirupati  
+    <br>
+    Demo system – model can be fine-tuned with crop-specific datasets
+    </p>
+    """,
+    unsafe_allow_html=True
+)
