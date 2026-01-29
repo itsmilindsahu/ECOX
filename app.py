@@ -17,9 +17,9 @@ st.set_page_config(
 # ---------- HEADER ----------
 st.markdown(
     """
-    <h1 style='text-align: center;'>🌱 Crop Disease Detection System</h1>
+    <h1 style='text-align: center;'>🌱 ecox</h1>
     <p style='text-align: center; color: gray;'>
-    AI-based severity analysis and treatment recommendation for farmers
+    AI-powered crop disease severity & treatment assistant
     </p>
     """,
     unsafe_allow_html=True
@@ -75,3 +75,4 @@ if uploaded_file:
         st.write(f"**Advice:** {actions['Advice']}")
 
     st.success("✅ Analysis complete. This system is optimized for real field conditions.")
+
