@@ -11,7 +11,7 @@ def preprocess_image(uploaded_file):
 
     # IMPORTANT: 224x224 for MobileNetV2
     img = cv2.resize(img, (224, 224))
-
+A
     # Simulate low-end smartphone image
     img = cv2.GaussianBlur(img, (5, 5), 0)
     img = cv2.convertScaleAbs(img, alpha=0.85, beta=10)
@@ -71,3 +71,27 @@ def action_recommendation(severity):
             "Chemical": "Recommended fungicide / pesticide",
             "Advice": "Immediate treatment and expert consultation"
         }
+
+def check_image_quality(img):
+    """
+    Checks basic image quality for low-end smartphones
+    Returns: quality_status ('good' or 'poor'), message
+    """
+    img_uint8 = (img * 255).astype("uint8")
+    gray = cv2.cvtColor(img_uint8, cv2.COLOR_BGR2GRAY)
+
+    # Brightness check
+    brightness = gray.mean()
+
+    # Blur check using Laplacian variance
+    blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    if brightness < 60:
+        return "poor", "Image is too dark. Please take the photo in better lighting."
+
+    if blur_score < 100:
+        return "poor", "Image looks blurry. Please hold the phone steady and retake."
+
+    return "good", "Image quality is sufficient."
+
+
