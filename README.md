@@ -1,85 +1,136 @@
-# 🌱 ECOX
-
-**ECOX** is an AI-powered, farmer-first web application that helps identify crop health issues by analyzing leaf images and, more importantly, estimating **disease severity and urgency** to guide timely action.
-
-Unlike traditional crop disease apps that only focus on naming diseases, ECOX prioritizes **decision support** for real-world farming conditions.
+# 🌱 ECOX  
+*A Prototype for Crop Disease Severity Estimation and Decision Support*
 
 ---
 
-## 🚜 Problem Statement
+## 1. Background and Motivation
 
-Farmers often rely on visual inspection to assess crop diseases, which can lead to delayed or incorrect treatment.  
-Most AI-based tools require high-quality images, stable internet, GPS access, and provide only disease names without indicating **how severe the problem is**.
+Crop diseases are a major cause of yield loss in agriculture.  
+In many rural areas, farmers rely on visual inspection and personal experience to judge whether a disease is serious or not. This often leads to delayed or incorrect treatment.
 
-This gap is especially critical for farmers using **low-end smartphones** in rural areas.
+Most existing AI-based crop disease systems focus only on identifying the disease name. However, for practical decision-making, farmers need to know **how severe the disease is** and **whether immediate action is required**.
 
----
-
-## 💡 Our Solution
-
-ECOX provides:
-- Image-based crop disease analysis
-- **Severity estimation** (Mild / Moderate / Severe)
-- **Urgency-based recommendations**
-- Region-aware crop hints
-- Clear guidance even when the disease is unknown
-
-The system is designed to work with **low-quality images**, minimal user input, and without relying on GPS or constant internet access.
+This project was developed to study how image-based AI systems can support **severity estimation and decision guidance**, especially under real-world constraints such as low-end smartphones and limited connectivity.
 
 ---
 
-## ✨ Key Features
+## 2. Problem Statement
 
-- 📷 **Camera & Image Upload Support**  
-- 🌡️ **Disease Severity Estimation**  
-- 🚦 **Urgency Classification & Action Advice**  
-- 🧠 **Ethical AI Handling of Unknown Diseases**  
-- 🌍 **Region-based Crop Suggestions (Manual, Privacy-safe)**  
-- 📊 **Common Disease Knowledge by Region**  
-- 📱 **Optimized for Low-End Smartphones**  
-- 🎨 **Simple Green & White Farmer-Friendly UI**
+- Farmers often use low-quality mobile phone cameras.
+- Disease identification alone does not indicate urgency.
+- Many AI systems assume high-quality images and constant internet access.
+- GPS-based solutions raise privacy and reliability concerns.
+
+There is a need for a simple and reliable system that can assist farmers in **estimating disease severity** and **choosing appropriate actions**, without relying on complex infrastructure.
 
 ---
 
-## ⚙️ System Architecture (Overview)
+## 3. Objective of the Project
 
-1. **Frontend (Streamlit Web App)**  
-   - Mobile-friendly interface  
-   - Camera capture & upload  
+The main objectives of this project are:
 
-2. **Image Processing Layer**  
-   - Image resizing & normalization  
-   - Low-end phone noise handling  
-   - Image quality assessment  
-
-3. **AI Inference Layer**  
-   - Lightweight pretrained CNN (MobileNetV2)  
-   - Demo-level disease classification  
-
-4. **Decision Intelligence Layer**  
-   - Infected area estimation  
-   - Severity & urgency determination  
-   - Action recommendation  
-
-5. **Context Layer**  
-   - Region-based crop hints  
-   - Common disease knowledge  
+- To analyze crop leaf images using a lightweight AI model.
+- To estimate the **severity of visible infection** rather than only classifying diseases.
+- To provide **action-oriented guidance** based on severity levels.
+- To design a system that works with low-end devices and minimal user input.
 
 ---
 
-## 🧠 Design Philosophy
+## 4. Overview of the Proposed System
 
-- **Severity over disease name**  
-- **Do not blame the user for AI limitations**  
-- **No GPS dependency** (privacy & offline-friendly)  
-- **Minimal clicks, minimal cognitive load**  
-- **Clear and honest feedback**
+ECOX is a web-based prototype that allows a user to:
+
+1. Select their region and crop type.
+2. Capture or upload an image of a crop leaf.
+3. Receive an estimate of disease severity.
+4. Obtain simple guidance on urgency and treatment.
+
+The system is designed as a **decision-support tool**, not a diagnostic replacement.
 
 ---
 
-## ▶️ How to Run Locally
+## 5. System Architecture (Conceptual)
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/YOUR_USERNAME/ecox.git
-cd ecox
+The system follows a layered structure:
+
+- **User Interface:**  
+  A simple web interface optimized for mobile devices.
+
+- **Image Processing Layer:**  
+  Image resizing, normalization, and basic quality checks to handle low-quality inputs.
+
+- **AI Inference Layer:**  
+  A pretrained convolutional neural network (MobileNetV2) is used to demonstrate disease-related feature extraction.
+
+- **Severity Estimation Layer:**  
+  The proportion of visually affected leaf area is estimated to classify severity as Mild, Moderate, or Severe.
+
+- **Decision Logic Layer:**  
+  Severity levels are mapped to urgency and suggested actions.
+
+- **Context Layer:**  
+  Region-based crop and disease information is used to provide contextual guidance without GPS dependency.
+
+---
+
+## 6. Design Considerations
+
+- **Severity-first approach:**  
+  Severity estimation is prioritized over disease naming.
+
+- **Ethical handling of uncertainty:**  
+  When the disease cannot be identified confidently, the system avoids giving misleading advice.
+
+- **Low-end device support:**  
+  The system is designed to tolerate noisy and low-resolution images.
+
+- **Privacy-aware design:**  
+  Region selection is manual to avoid GPS and location tracking.
+
+---
+
+## 7. Implementation Details
+
+- **Frontend:** Streamlit (Python-based web framework)
+- **AI Model:** MobileNetV2 (pretrained on ImageNet, used as a demonstration model)
+- **Image Processing:** OpenCV and NumPy
+- **Deployment:** Streamlit Cloud
+
+This implementation focuses on validating the **end-to-end pipeline** rather than achieving high classification accuracy.
+
+---
+
+## 8. Limitations
+
+- The current AI model is not trained on crop-specific disease datasets.
+- Disease labels are limited and used for demonstration purposes.
+- The system does not replace expert agricultural diagnosis.
+
+These limitations are acknowledged and addressed in the future scope.
+
+---
+
+## 9. Future Scope
+
+- Training with crop-specific datasets (e.g., PlantVillage).
+- District-level disease trend analysis.
+- Multilingual and voice-based guidance.
+- Integration with agricultural advisory services.
+
+---
+
+## 10. Conclusion
+
+ECOX demonstrates how AI can be used as a **support tool** for agricultural decision-making rather than a black-box predictor. The project emphasizes simplicity, transparency, and real-world constraints, making it suitable for further academic and applied research.
+
+---
+
+## 11. Acknowledgement
+
+This project was developed as part of the **AI4Life Hackathon** at **Indian Institute of Science Education and Research (IISER) Tirupati**.
+
+---
+
+## Disclaimer
+
+This is a student research prototype intended for academic discussion and demonstration purposes.
