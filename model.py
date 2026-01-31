@@ -19,7 +19,7 @@ def predict_disease(img):
     return label, confidence
 
 
-# ---------- DEMO LABEL MAPPING ----------
+# Demo-friendly disease mapping
 def map_to_crop_disease(raw_label):
     mapping = {
         "Windsor_tie": "Leaf Blight (Demo)",
@@ -28,4 +28,4 @@ def map_to_crop_disease(raw_label):
         "necklace": "Nutrient Deficiency (Demo)"
     }
 
-    return mapping.get(raw_label, "Unknown Crop Disease (Demo)")
+    return mapping.get(raw_label, "Unknown Crop Disease")
