@@ -2,16 +2,15 @@ import cv2
 import numpy as np
 from PIL import Image
 
-# ---------------- IMAGE PREPROCESSING ----------------
+# ---------- IMAGE PREPROCESSING ----------
 def preprocess_image(uploaded_file):
     image = Image.open(uploaded_file).convert("RGB")
-
     img = np.array(image)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-    # IMPORTANT: 224x224 for MobileNetV2
+    # MobileNetV2 requirement
     img = cv2.resize(img, (224, 224))
-A
+
     # Simulate low-end smartphone image
     img = cv2.GaussianBlur(img, (5, 5), 0)
     img = cv2.convertScaleAbs(img, alpha=0.85, beta=10)
@@ -20,7 +19,24 @@ A
     return img
 
 
-# ---------------- SEVERITY ESTIMATION ----------------
+# ---------- IMAGE QUALITY CHECK ----------
+def check_image_quality(img):
+    img_uint8 = (img * 255).astype("uint8")
+    gray = cv2.cvtColor(img_uint8, cv2.COLOR_BGR2GRAY)
+
+    brightness = gray.mean()
+    blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    if brightness < 60:
+        return "poor", "Image is too dark. Take photo in better lighting."
+
+    if blur_score < 100:
+        return "poor", "Image is blurry. Hold phone steady and retake."
+
+    return "good", "Image quality is sufficient."
+
+
+# ---------- SEVERITY ESTIMATION ----------
 def infected_area_percentage(img):
     img_uint8 = (img * 255).astype("uint8")
     gray = cv2.cvtColor(img_uint8, cv2.COLOR_BGR2GRAY)
@@ -51,47 +67,22 @@ def urgency_message(severity):
         return "✅ Low urgency: Monitor crop"
 
 
-# ---------------- ACTION RECOMMENDATIONS ----------------
 def action_recommendation(severity):
     if severity == "Mild":
         return {
-            "Organic": "Neem oil spray or baking soda solution",
+            "Organic": "Neem oil spray",
             "Chemical": "Not required",
-            "Advice": "Monitor the crop for a few days"
+            "Advice": "Monitor for a few days"
         }
     elif severity == "Moderate":
         return {
-            "Organic": "Neem oil + garlic extract spray",
-            "Chemical": "Low-dose fungicide if needed",
+            "Organic": "Neem oil + garlic extract",
+            "Chemical": "Low-dose fungicide",
             "Advice": "Treat within 2–3 days"
         }
     else:
         return {
-            "Organic": "Organic methods not sufficient",
-            "Chemical": "Recommended fungicide / pesticide",
+            "Organic": "Organic methods insufficient",
+            "Chemical": "Recommended fungicide",
             "Advice": "Immediate treatment and expert consultation"
         }
-
-def check_image_quality(img):
-    """
-    Checks basic image quality for low-end smartphones
-    Returns: quality_status ('good' or 'poor'), message
-    """
-    img_uint8 = (img * 255).astype("uint8")
-    gray = cv2.cvtColor(img_uint8, cv2.COLOR_BGR2GRAY)
-
-    # Brightness check
-    brightness = gray.mean()
-
-    # Blur check using Laplacian variance
-    blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
-
-    if brightness < 60:
-        return "poor", "Image is too dark. Please take the photo in better lighting."
-
-    if blur_score < 100:
-        return "poor", "Image looks blurry. Please hold the phone steady and retake."
-
-    return "good", "Image quality is sufficient."
-
-
