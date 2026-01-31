@@ -10,63 +10,88 @@ from utils import (
 )
 from model import predict_disease, map_to_crop_disease
 
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="ecox", layout="centered")
 
+# ---------------- GREEN + WHITE THEME ----------------
+st.markdown(
+    """
+    <style>
+    .main { background-color: #ffffff; }
+    h1, h2, h3 { color: #1b5e20; }
+    .stButton>button {
+        background-color: #2e7d32;
+        color: white;
+        border-radius: 10px;
+        height: 3em;
+        width: 100%;
+        font-size: 18px;
+    }
+    .stSelectbox label, .stFileUploader label {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# ---------------- HEADER ----------------
 st.markdown(
     """
     <h1 style='text-align:center;'>🌱 ecox</h1>
-    <p style='text-align:center;color:gray;'>
-    AI-powered crop disease severity & treatment assistant
+    <p style='text-align:center; color:#4f4f4f;'>
+    Take a photo of your crop leaf and get instant guidance
     </p>
     """,
     unsafe_allow_html=True
 )
 
-# -------- Crop Selection --------
-st.markdown("### 🌾 Select Crop")
+st.divider()
+
+# ---------------- STEP 1: CROP SELECTION ----------------
+st.markdown("### 🌾 Step 1: Select Crop")
+
 crop = st.selectbox(
-    "Choose crop type",
-    ["Unknown", "Rice", "Wheat", "Maize", "Tomato", "Potato", "Cotton"]
+    "",
+    ["Rice", "Wheat", "Maize", "Tomato", "Potato", "Cotton", "Other / Not sure"]
 )
 
-# -------- Image Input --------
-st.markdown("### 📸 Capture or Upload Leaf Image")
+# ---------------- STEP 2: IMAGE INPUT ----------------
+st.markdown("### 📸 Step 2: Take or Upload Photo")
 
-method = st.radio(
-    "Image input method",
-    ["📷 Take Photo", "📁 Upload Image"],
-    horizontal=True
-)
+camera_image = st.camera_input("📷 Take Photo")
+uploaded_image = st.file_uploader("📁 Or Upload Photo", type=["jpg", "png", "jpeg"])
 
-image_file = None
-if method == "📷 Take Photo":
-    image_file = st.camera_input("Take a clear photo of the leaf")
-else:
-    image_file = st.file_uploader(
-        "Upload leaf image",
-        type=["jpg", "png", "jpeg"]
-    )
+image_file = camera_image if camera_image else uploaded_image
 
-# -------- Processing --------
+# ---------------- PROCESS IMAGE ----------------
 if image_file:
     image = Image.open(image_file)
-    st.image(image, use_container_width=True)
+    st.image(image, caption="Leaf Image", use_container_width=True)
 
     processed_img = preprocess_image(image_file)
-
     quality_status, quality_message = check_image_quality(processed_img)
 
+    st.divider()
+    st.markdown("## 🌱 Result")
+
+    # ---------- IMAGE QUALITY ----------
     if quality_status == "poor":
-        st.warning("⚠️ Image Quality Issue")
+        st.warning("⚠️ Photo quality is not clear")
         st.info(quality_message)
 
         st.markdown(
-            "- Take photo in sunlight ☀️\n"
-            "- Hold phone steady 📱\n"
-            "- Capture only the leaf 🍃"
+            """
+            **Tips to get better result:**
+            - Take photo in sunlight ☀️  
+            - Hold phone steady 📱  
+            - Capture only one leaf 🍃
+            """
         )
 
     else:
+        # ---------- AI PREDICTION ----------
         raw_label, confidence = predict_disease(processed_img)
         disease_label = map_to_crop_disease(raw_label)
 
@@ -75,39 +100,37 @@ if image_file:
         urgency = urgency_message(severity)
         actions = action_recommendation(severity)
 
-        st.divider()
-        st.markdown("## 📊 Analysis Results")
+        st.success("✅ Photo is clear")
 
-        st.subheader("🧠 AI Prediction")
-        st.write(f"**Detected Disease:** {disease_label}")
-        st.write(f"**Crop:** {crop}")
-        st.write(f"**Confidence:** {confidence:.2f}")
+        st.markdown(f"**🌾 Crop:** {crop}")
+        st.markdown(f"**🦠 Disease:** {disease_label}")
 
-        if "Unknown" in disease_label:
-            st.warning("⚠️ Disease not supported in demo model")
-            st.info(
-                "Image quality is good. The disease is not covered "
-                "by the current demo model.\n\n"
-                "Severity estimation is still reliable."
-            )
+        # ---------- SEVERITY ----------
+        st.markdown("### 🌡️ Disease Severity")
+        st.progress(min(max(int(infected_pct), 0), 100))
+        st.markdown(f"**Severity:** {severity}")
+        st.markdown(f"**Affected Area:** {infected_pct:.1f}%")
 
-            st.subheader("🌡️ Disease Severity")
-            st.progress(min(max(int(infected_pct), 0), 100))
-            st.write(f"**Severity Level:** {severity}")
-            st.write(f"**Affected Area:** {infected_pct:.1f}%")
+        # ---------- URGENCY ----------
+        st.markdown("### 🚦 Urgency")
+        st.info(urgency)
 
-        else:
-            st.subheader("🌡️ Disease Severity")
-            st.progress(min(max(int(infected_pct), 0), 100))
-            st.write(f"**Severity Level:** {severity}")
-            st.write(f"**Affected Area:** {infected_pct:.1f}%")
+        # ---------- ACTION ----------
+        st.markdown("### 🌿 What should you do?")
+        st.markdown(f"**Organic:** {actions['Organic']}")
+        st.markdown(f"**Chemical:** {actions['Chemical']}")
+        st.markdown(f"**Advice:** {actions['Advice']}")
 
-            st.subheader("🚦 Urgency")
-            st.info(urgency)
+st.divider()
 
-            st.subheader("🌿 Recommended Action")
-            st.write(f"**Organic:** {actions['Organic']}")
-            st.write(f"**Chemical:** {actions['Chemical']}")
-            st.write(f"**Advice:** {actions['Advice']}")
-
-        st.success("✅ Analysis complete. Designed for real field conditions.")
+# ---------------- FOOTER ----------------
+st.markdown(
+    """
+    <p style='text-align:center; color:gray; font-size:13px;'>
+    ecox • Simple AI for farmers  
+    <br>
+    Works on low-end smartphones
+    </p>
+    """,
+    unsafe_allow_html=True
+)
