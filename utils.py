@@ -7,14 +7,7 @@ def preprocess_image(uploaded_file):
     image = Image.open(uploaded_file).convert("RGB")
     img = np.array(image)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-    # MobileNetV2 requirement
     img = cv2.resize(img, (224, 224))
-
-    # Simulate low-end smartphone image
-    img = cv2.GaussianBlur(img, (5, 5), 0)
-    img = cv2.convertScaleAbs(img, alpha=0.85, beta=10)
-
     img = img / 255.0
     return img
 
